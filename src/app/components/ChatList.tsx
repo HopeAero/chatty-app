@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Room } from '@/shared/types/room.interface';
+import { Room } from '@/shared/types/room.interface'
+import CreateChatModal from './CreateChatModal'
 
 interface ChatListProps {
   rooms: Room[];
@@ -11,6 +12,7 @@ interface ChatListProps {
 
 export default function ChatList({ rooms, onSelectRoom }: ChatListProps) {
   const [searchTerm, setSearchTerm] = useState('')
+  
 
   const filteredRooms = useMemo(() => {
     return rooms.filter(room => 
@@ -34,9 +36,12 @@ export default function ChatList({ rooms, onSelectRoom }: ChatListProps) {
     return lastMessage ? lastMessage.contents : 'No hay mensajes'
   }
 
+  
+        
   return (
     <div className="w-1/3 bg-white border-r">
       <div className="p-4">
+        <CreateChatModal />
         <Input 
           type="text" 
           placeholder="Buscar chat..." 
@@ -45,7 +50,7 @@ export default function ChatList({ rooms, onSelectRoom }: ChatListProps) {
           className="mb-4"
         />
       </div>
-      <ScrollArea className="h-[calc(100vh-80px)]">
+      <ScrollArea className="h-[calc(100vh-140px)]">
         {filteredRooms.map(room => (
           <div 
             key={room._id} 

@@ -1,36 +1,41 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import axios from '@/lib/axios'
-import Link from 'next/link'
-import GoogleSignInButton from '../components/GoogleSignInButton'
+import { useRouter } from 'next/navigation'
 
-export default function Login() {
+export default function Registration() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+
     try {
-      const response = await axios.post('/auth-rest/login', { username, password })
-      const { jwt } = response.data
-      if (jwt) {
-        localStorage.setItem('token', jwt)
-        localStorage.setItem('username', username)
-        router.push('/chat')
+      const response = await axios.post('/auth-rest/register', { username, password })
+        
+      console.log('response', response)
+
+      if (response.data) {
+        router.push('/login')
       } else {
-        throw new Error('Login failed')
+        setError('Error en el registro. Por favor, intenta de nuevo.')
       }
     } catch (error) {
-      console.error('Error during login:', error)
-      setError('Error al iniciar sesión. Por favor, intenta de nuevo.')
+      console.error('Error during registration:', error)
+      setError('Error en el registro. Por favor, intenta de nuevo.')
     }
   }
 
@@ -38,10 +43,10 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle>Iniciar Sesión</CardTitle>
+          <CardTitle>Registro de Usuario</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleRegister}>
             <div className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="username" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Usuario</label>
@@ -63,29 +68,20 @@ export default function Login() {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <label htmlFor="confirmPassword" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Confirmar Contraseña</label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            <Button type="submit" className="w-full mt-4">Iniciar Sesión</Button>
+            <Button type="submit" className="w-full mt-4">Registrarse</Button>
           </form>
-          <div className="mt-4">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  O continúa con
-                </span>
-              </div>
-            </div>
-            <GoogleSignInButton />
-          </div>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">¿No tienes una cuenta?</p>
-            <Link href="/register">
-              <Button variant="outline" className="mt-2">Registrarse</Button>
-            </Link>
-          </div>
         </CardContent>
       </Card>
     </div>

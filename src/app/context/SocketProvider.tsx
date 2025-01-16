@@ -11,7 +11,9 @@ interface SocketContextType {
   sendMessage: (message: { roomId: string; senderId: string; contents: string }) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   subscribeToMessages: (callback: (data: responseMessage) => void) => void;
+  suscribeToUserJoined: (callback: (data: {roomId: string, message: string}) => void) => void;
   unsubscribeFromMessages: () => void;
+  unsubscribeFromUserJoined: () => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined)
@@ -23,7 +25,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('token') || ''
     console.log('Initializing socket connection')
-    const socketInstance = io('http://localhost:3001', {
+    const socketInstance = io(process.env.NEXT_PUBLIC_GATEWAY_URL, {
       path: '/ws',
       transports: ['websocket'],
       auth: {
@@ -86,9 +88,25 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const suscribeToUserJoined = (callback: (data: {roomId: string, message: string}) => void) => {
+    if (socket) {
+      console.log('Subscribing to user joined')
+      socket.on('user-joined', (data: {roomId: string, message: string}) => {
+        console.log('Received user joined:', data)
+        callback(data)
+      })
+    }
+  }
+
   const unsubscribeFromMessages = () => {
     if (socket) {
       socket.off('message')
+    }
+  }
+
+  const unsubscribeFromUserJoined = () => {
+    if (socket) {
+      socket.off('user-joined')
     }
   }
 
@@ -100,7 +118,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         joinRoom,
         sendMessage,
         subscribeToMessages,
-        unsubscribeFromMessages
+        suscribeToUserJoined,
+        unsubscribeFromMessages,
+        unsubscribeFromUserJoined
       }}
     >
       {children}
