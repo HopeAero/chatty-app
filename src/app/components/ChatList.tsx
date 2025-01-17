@@ -8,9 +8,10 @@ import CreateChatModal from './CreateChatModal'
 interface ChatListProps {
   rooms: Room[];
   onSelectRoom: (room: Room) => void;
+  currentUserUsername: string;
 }
 
-export default function ChatList({ rooms, onSelectRoom }: ChatListProps) {
+export default function ChatList({ rooms, onSelectRoom, currentUserUsername }: ChatListProps) {
   const [searchTerm, setSearchTerm] = useState('')
   
 
@@ -27,7 +28,8 @@ export default function ChatList({ rooms, onSelectRoom }: ChatListProps) {
     if (room.type === 'GROUP') {
       return room.name || `Grupo (${room.members.length} miembros)`
     } else {
-      return room.members[0].username // Asumiendo que el primer miembro es el otro usuario en un chat individual
+      const otherMember = room.members.find(member => member.username !== currentUserUsername)
+      return otherMember ? otherMember.username : 'Chat'
     }
   }
 

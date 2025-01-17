@@ -93,7 +93,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <ChatList rooms={rooms} onSelectRoom={handleSelectRoom} />
+      <ChatList rooms={rooms} onSelectRoom={handleSelectRoom} currentUserUsername={currentUserUsername} />
       <ChatWindow 
         selectedRoom={selectedRoom} 
         currentUserUsername={currentUserUsername}

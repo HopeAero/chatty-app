@@ -36,13 +36,15 @@ export default function ChatWindow({ selectedRoom, currentUserUsername }: ChatWi
   useEffect(() => {
     if (selectedRoom && isConnected) {
       const handleNewMessage = (data: responseMessage) => {
-        const formattedMessage = {
-          ...data,
-          createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
-          updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date()
+        if (data.roomId === selectedRoom._id) {
+          const formattedMessage = {
+            ...data,
+            createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+            updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date()
+          }
+          setMessages(prevMessages => [...prevMessages, formattedMessage])
+          scrollToBottom()
         }
-        setMessages(prevMessages => [...prevMessages, formattedMessage])
-        scrollToBottom()
       }
 
       subscribeToMessages(handleNewMessage)
